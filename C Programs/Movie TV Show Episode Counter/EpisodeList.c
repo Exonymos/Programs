@@ -35,6 +35,7 @@ int main() {
                 break;
             default:
                 printf("Invalid choice. Please try again.\n");
+                getchar();
         }
     } while (choice != 5);
 
@@ -141,11 +142,26 @@ void rename_show() {
     int choice;
     printf("Enter your choice: ");
     scanf("%d", &choice);
-    printf("Enter the new title: ");
-    scanf(" %[^\n]", new_title);
-
     fp = fopen(FILE_NAME, "r");
+    if (fp == NULL) {
+        printf("Error opening file.\n");
+        return;
+    }
+    count = 1;
+    while (fgets(line, 100, fp) != NULL) {
+        if (count % 4 == 1 && (count / 4 + 1) == choice) {
+            printf("Enter the new title: ");
+            scanf(" %[^\n]", new_title);
+            strncpy(title, line + 1, strlen(line) - 3);
+            title[strlen(line) - 4] = '\0';
+            break;
+        }
+        count++;
+    }
+    fclose(fp);
+
     FILE *temp_fp = fopen("temp.txt", "w");
+    fp = fopen(FILE_NAME, "r");
     if (fp == NULL || temp_fp == NULL) {
         printf("Error opening file.\n");
         return;
@@ -177,7 +193,17 @@ void show_contents() {
     }
     char line[100];
     while (fgets(line, 100, fp) != NULL) {
-        printf("%s", line);
+        char *title_start = strchr(line, '\"');
+        if (title_start != NULL) {
+            char *title_end = strchr(title_start + 1, '\"');
+            if (title_end != NULL) {
+                int title_len = title_end - title_start - 1;
+                char title[MAX_TITLE_LENGTH];
+                strncpy(title, title_start + 1, title_len);
+                title[title_len] = '\0';
+                printf("%s\n", title);
+            }
+        }
     }
     fclose(fp);
 }
