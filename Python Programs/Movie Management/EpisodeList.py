@@ -1,204 +1,185 @@
+import json
 import os
 
-#function to clear the console
-def clear_console():
-    os.system('cls' if os.name == 'nt' else 'clear')
+FILE_NAME = "list.json"
 
-#function to show menu and get user choice
-def show_menu():
-    clear_console()
-    print("Menu:")
+def create_file_if_not_exists():
+    if not os.path.exists(FILE_NAME):
+        with open(FILE_NAME, "w") as f:
+            f.write("[]")
+
+def read_file():
+    create_file_if_not_exists()  # create the file if it does not exist
+    with open(FILE_NAME, "r") as f:
+        return json.load(f)
+
+def write_file(data):
+    create_file_if_not_exists()  # create the file if it does not exist
+    with open(FILE_NAME, "w") as f:
+        json.dump(data, f, indent=4, sort_keys=True)
+
+
+def get_choice():
     print("1. Add a new Movie/TV Show")
     print("2. Update watched episodes")
     print("3. Rename a Movie/TV Show")
-    print("4. Show the Movie/TV Show Names")
-    print("5. Create a new file")
-    print("6. Delete an entry")
-    print("7. Quit")
-    choice = input("Enter your choice: ")
-    return choice
+    print("4. Show Movie/TV Show names")
+    print("5. Delete an entry")
+    print("6. Quit")
+    choice = input("Please enter your choice: ")
+    return choice.strip().lower()
 
-#function to create a new file
-def create_file():
-    file_name = input("Enter the file name: ")
-    if not file_name.endswith(".txt"):
-        file_name += ".txt"
-    if os.path.exists(file_name):
-        print("File already exists!")
-        return
-    with open(file_name, 'w') as f:
-        print("File created successfully.")
-
-#function to read data from file and return as list
-def read_data(file_name):
-    with open(file_name, 'r') as f:
-        data = f.readlines()
-    return data
-
-#function to write data to file
-def write_data(file_name, data):
-    with open(file_name, 'w') as f:
-        f.writelines(data)
-
-#function to add a new movie / tv show
-def add_new_entry(file_name):
-    name = input("Enter the name of the Movie/TV Show: ")
-    total_episodes = input("Enter the total number of episodes: ")
-    watched_episodes = input("Enter the number of watched episodes: ")
-    m_type = input("Enter the type (Movie/TV Show): ")
-    new_entry = f"{name}\nTotal number of episodes: {total_episodes}\nWatched episodes: {watched_episodes}\nType: {m_type}\n"
-    data = read_data(file_name)
-    index = len(data)
-    for i, line in enumerate(data):
-        if line.strip() > name:
-            index = i
+def add_entry():
+    name = input("Enter name of the Movie/TV Show: ")
+    while True:
+        total_episodes = input("Enter total episodes: ")
+        if not total_episodes.isdigit() or int(total_episodes) <= 0:
+            print("Invalid input!")
+        else:
             break
-    data.insert(index, new_entry)
-    write_data(file_name, data)
-    print("Entry added successfully.")
+    while True:
+        watched_episodes = input("Enter number of episodes watched: ")
+        if not watched_episodes.isdigit() or int(watched_episodes) < 0:
+            print("Invalid input!")
+        elif int(watched_episodes) > int(total_episodes):
+            print("Invalid input! Watched episodes cannot be greater than total episodes.")
+        else:
+            break
+    while True:
+        entry_type = input("Enter type (M for Movie, S for TV show): ")
+        if entry_type.strip().lower() == "m":
+            entry_type = "Movie"
+            break
+        elif entry_type.strip().lower() == "s":
+            entry_type = "TV Show"
+            break
+        else:
+            print("Invalid input! Please enter M or S.")
+    data = read_file()
+    data.append({"name": name, "total_episodes": int(total_episodes), "watched_episodes": int(watched_episodes), "type": entry_type})
+    write_file(sorted(data, key=lambda x: x["name"]))
+    print("Entry added successfully!")
 
-#function to update watched episodes
-def update_watched_episodes(file_name):
-    data = read_data(file_name)
-    titles = [line.strip() for i, line in enumerate(data) if i % 4 == 0]
-    titles.sort()
-    print("Titles:")
-    for i, title in enumerate(titles):
-        print(f"{i+1}. {title}")
-    choice = int(input("Enter the number of the Movie/TV Show to update: "))
-    title_index = (choice - 1) * 4
-    total_episodes_index = title_index + 1
-    watched_episodes_index = title_index + 2
-    new_watched_episodes = input("Enter the new number of watched episodes: ")
-    data[watched_episodes_index] = f"Watched episodes: {new_watched_episodes}\n"
-    write_data(file_name, data)
-    print("Watched episodes updated successfully.")
+def update_watched_episodes():
+    data = read_file()
+    print("Select the Movie/TV Show to update watched episodes:")
+    for i in range(len(data)):
+        print(f"{i+1}. {data[i]['name']}")
+    while True:
+        choice = input("Enter your choice (1-{}): ".format(len(data)))
+        if not choice.isdigit() or int(choice) < 1 or int(choice) > len(data):
+            print("Invalid input! Please enter a valid choice.")
+        else:
+            break
+    entry = data[int(choice)-1]
+    print(f"Updating {entry['name']}")
+    while True:
+        watched_episodes = input("Enter number of episodes watched: ")
+        if not watched_episodes.isdigit():
+            print("Invalid input! Please enter a numeric value.")
+        elif int(watched_episodes) > entry["total_episodes"]:
+            print("Invalid input! Watched episodes cannot be greater than total episodes.")
+        else:
+            entry["watched_episodes"] = int(watched_episodes)
+            break
+    write_file(data)
+    print("Watched episodes updated successfully!")
 
-#function to rename a movie / tv show
-def rename_entry(file_name):
-    data = read_data(file_name)
-    titles = [line.strip() for i, line in enumerate(data) if i % 4 == 0]
-    titles.sort()
-    print("Titles:")
-    for i, title in enumerate(titles):
-        print(f"{i+1}. {title}")
-
-    if not titles:
-        print("No entries found.")
-        return
-
-    choice = int(input("Enter the number of the Movie/TV Show you want to rename: "))
-    if choice < 1 or choice > len(titles):
-        print("Invalid choice.")
-        return
-
-    new_title = input("Enter the new name: ")
-    if not new_title:
-        print("Invalid title.")
-        return
-
-    # update the file
-    index = data.index(titles[choice - 1])
-    data[index] = new_title
-    write_data(file_name, data)
-    print("Movie/TV Show renamed successfully!")
-def delete_entry(file_name):
-    data = read_data(file_name)
-    titles = [line.strip() for i, line in enumerate(data) if i % 4 == 0]
-    titles.sort()
-    print("Titles:")
-    for i, title in enumerate(titles):
-        print(f"{i+1}. {title}")
-
-    if not titles:
-        print("No entries found.")
-        return
-
-    choice = int(input("Enter the number of the Movie/TV Show you want to delete: "))
-    if choice < 1 or choice > len(titles):
-        print("Invalid choice.")
-        return
-
-    confirm = input("Are you sure you want to delete this entry? (y/n): ")
-    if confirm.lower() == "y": #delete the entry from the data list
-        index = data.index(titles[choice - 1])
-        data.pop(index + 2)
-        data.pop(index + 1)
-        data.pop(index)# update the file
-        write_data(file_name, data)
-        print("Movie/TV Show deleted successfully!")
-    else :
-        print("Deletion cancelled.")
-def display_detailed_info(file_name):
-    data = read_data(file_name)
-    titles = [line.strip() for i, line in enumerate(data) if i % 4 == 0]
-    titles.sort()
-    print("Titles:")
-    for i, title in enumerate(titles):
-        print(f"{i+1}. {title}")
-
-    if not titles:
-        print("No entries found.")
-        return
-
-    choice = int(input("Enter the number of the Movie/TV Show you want to view detailed info of: "))
-    if choice < 1 or choice > len(titles):
-        print("Invalid choice.")
-        return
-
-    # extract the data of the selected title
-    index = data.index(titles[choice - 1])
-    total_episodes = int(data[index + 1].split()[-1])
-    watched_episodes = int(data[index + 2].split()[-1])
-    title_type = data[index + 3].split()[-1]# display the detailed info
-    print(f"Title: {titles[choice-1]}")
-    print(f"Total Episodes: {total_episodes}")
-    print(f"Watched Episodes: {watched_episodes}")
-    print(f"Type: {title_type}")
+def rename_entry():
+    data = read_file()
+    print("Select the Movie/TV Show to rename:")
+    for i in range(len(data)):
+        print(f"{i+1}. {data[i]['name']}")
+    while True:
+        choice = input("Enter your choice (1-{}): ".format(len(data)))
+        if not choice.isdigit() or int(choice) < 1 or int(choice) > len(data):
+            print("Invalid choice. Please enter a valid choice.")
+        else:
+            break
+    index = int(choice) - 1
+    name = input("Enter the new name for {}:".format(data[index]['name']))
+    data[index]['name'] = name
+    write_file(data)
+    print("Entry renamed successfully!")
     
-def main():
-    file_name = input("Enter the name of the file to load: ")
-    if not file_name.endswith(".txt"):
-        file_name += ".txt"
-
-    if not os.path.exists(file_name):
-        with open(file_name, "w") as f:
-            print(f"Created new file: {file_name}")
-
+def show_list():
+    data = read_file()
+    print("\nList of Movies/TV Shows:")
+    print("-----------------------------")
+    for item in data:
+        print(item['name'])
+    print("-----------------------------\n")
+    
+def show_details():
+    data = read_file()
+    while True:
+        name = input("('!back' to return to the menu)\nEnter the name of the Movie/TV Show: ")
+        if name.lower() == '!back':
+            return
+        for item in data:
+            if name.lower() == item['name'].lower():
+                print(f"Name: {item['name']}")
+                print(f"Total episodes: {item['total_episodes']}")
+                print(f"Watched episodes: {item['watched_episodes']}")
+                print(f"Type: {item['type']}")
+                return
+        print("Entry not found!. Please enter the correct name.")
+    
+def delete_entry():
+    data = read_file()
+    print("Select the Movie/TV Show to delete:")
+    for i in range(len(data)):
+        print(f"{i+1}. {data[i]['name']}")
+    while True:
+        choice = input("Enter your choice (1-{}): ".format(len(data)))
+        if not choice.isdigit() or int(choice) < 1 or int(choice) > len(data):
+            print("Invalid choice. Please try again.")
+            continue
+        choice = int(choice)
+        break
+    item = data[choice-1]
+    while True:
+        confirm = input(f"Are you sure you want to delete '{item['name']}'? (y/n): ")
+        if confirm.lower() == 'y':
+            data.remove(item)
+            write_file(data)
+            print(f"'{item['name']}' has been deleted.")
+            break
+        elif confirm.lower() == 'n':
+            print(f"'{item['name']}' was not deleted.")
+            break
+        else:
+            print("Invalid choice. Please enter 'y' or 'n'.")
+            
+def menu():
     while True:
         print("\nMenu:")
+        print("-----------------------------")
         print("1. Add a new Movie/TV Show")
         print("2. Update watched episodes")
         print("3. Rename a Movie/TV Show")
-        print("4. Show the Movie/TV Show Names")
-        print("5. Create a new file")
-        print("6. Delete an entry")
-        print("7. Quit")
-        choice = input("Enter your choice: ")
-
-        if choice == "1":
-            add_new_entry(file_name)
-
-        elif choice == "2":
-            update_watched_episodes(file_name)
-
-        elif choice == "3":
-            rename_entry(file_name)
-
-        elif choice == "4":
-            read_data(file_name)
-
-        elif choice == "5":
-            create_file()
-
-        elif choice == "6":
-            delete_entry(file_name)
-
-        elif choice == "7":
-            print("Exiting program...")
+        print("4. Show Movie/TV Show List")
+        print("5. Delete an entry")
+        print("6. Quit")
+        print("-----------------------------")
+        choice = input("Please enter your choice: ")
+        if choice == '1':
+            add_entry()
+        elif choice == '2':
+            update_watched_episodes()
+        elif choice == '3':
+            rename_entry()
+        elif choice == '4':
+            show_list()
+            show_details_choice = input("Do you want to see detailed information for any Movie/TV Show? (y/n): ")
+            if show_details_choice.lower() == 'y':
+                show_details()
+        elif choice == '5':
+            delete_entry()
+        elif choice == '6':
+            print("Exiting program. Goodbye!")
             break
-
-        else :
+        else:
             print("Invalid choice. Please try again.")
-if __name__ == '__main__':
-    main()
+            
+menu()
