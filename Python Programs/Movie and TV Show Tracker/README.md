@@ -1,4 +1,6 @@
-#Movie and TV Show Tracker
+
+# Movie and TV Show Tracker
+
 
 > A simple python application for tracking movies and TV shows that you have watched or plan to watch. The program reads and writes data to a json file.
 
@@ -18,13 +20,12 @@
 
 ### Getting Started
 
-#####Prerequisites
+##### Prerequisites
 
 ```shell
 Python 3.x
 ```
 
-------------
 
 ### How to use
 
@@ -54,4 +55,4 @@ To delete an entry, select option 5 from the main menu. You will be presented wi
 
 
 
-Project Link: https://github.com/Exonymos/movie-tvshow-tracker
+Project Link: [https://github.com/Exonymos/Programs/](https://github.com/Exonymos/Programs/tree/main/Python%20Programs/Movie%20and%20TV%20Show%20Tracker)
