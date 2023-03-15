@@ -55,4 +55,4 @@ To delete an entry, select option 5 from the main menu. You will be presented wi
 
 
 
-Project Link: [https://github.com/Exonymos/Programs/](https://github.com/Exonymos/Programs/tree/main/Python%20Programs/Movie%20and%20TV%20Show%20Tracker)
+**Project Link:** [https://github.com/Exonymos/Programs/](https://github.com/Exonymos/Programs/tree/main/Python%20Programs/Movie%20and%20TV%20Show%20Tracker)
