@@ -77,6 +77,7 @@ def add_entry():
     write_file(sorted(data, key=lambda x: x["name"]))
     print("Entry added successfully!")
     wait_for_key()
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def update_entry():
     data = read_file()
@@ -108,11 +109,13 @@ def update_entry():
         choice = input("Enter your choice: ")
         if choice == "1":
             if end_index < total_items:
+                os.system('cls' if os.name == 'nt' else 'clear')
                 current_page += 1
             else:
                 print("This is the last page.")
         elif choice == "2":
             if start_index > 0:
+                os.system('cls' if os.name == 'nt' else 'clear')
                 current_page -= 1
             else:
                 print("This is the first page.")
@@ -123,7 +126,7 @@ def update_entry():
                 entry_index = start_index + item_choice # calculate the index of the chosen item in the original data list
                 print(f'Updating {entry["name"]} ({entry["watched_episodes"]}/{entry["total_episodes"]})')
                 while True:
-                    watched_episodes = input("('!back' to return to the menu)\nEnter number of episodes watched: ")
+                    watched_episodes = input("('!back' to return)\nEnter number of episodes watched: ")
                     if watched_episodes == '!back':
                         break
                     elif not watched_episodes.isdigit():
@@ -137,6 +140,7 @@ def update_entry():
                         print("Watched episodes updated successfully!")
                         print(f'Current status for {entry["name"]}: {entry["watched_episodes"]}/{entry["total_episodes"]}')
                         wait_for_key()
+                        os.system('cls' if os.name == 'nt' else 'clear')
                         break
             else:
                 print("Invalid choice.")
@@ -375,23 +379,28 @@ def menu():
         print("-----------------------------")
         choice = input("Please enter your choice: ")
         if choice == '1':
+            os.system('cls' if os.name == 'nt' else 'clear')
             add_entry()
         elif choice == '2':
+            os.system('cls' if os.name == 'nt' else 'clear')
             update_entry()
         elif choice == '3':
+            os.system('cls' if os.name == 'nt' else 'clear')
             rename_entry()
         elif choice == '4':
+            os.system('cls' if os.name == 'nt' else 'clear')
             show_list()
         elif choice == '5':
+            os.system('cls' if os.name == 'nt' else 'clear')
             delete_entry()
         elif choice == '6':
+            os.system('cls' if os.name == 'nt' else 'clear')
             print("\nThank you for using this program!")
             print("Created by Exonymos")
-            print("Exiting program. Goodbye!")
+            print("Exiting program. Goodbye!\n")
             break
         else:
+            os.system('cls' if os.name == 'nt' else 'clear')
             print("Invalid choice. Please try again.")
             
 menu()
-
-
