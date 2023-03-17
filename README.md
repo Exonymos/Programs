@@ -17,14 +17,14 @@ In this repository, you will find code files which I have written in different p
 To use the repository, simply clone it to your local machine using the following command:
 
 ```bash
-git clone https://github.com/your-username/repo-name.git
+git clone https://github.com/Exonymos/Programs.git
 ```
 
 Once you have the repository on your local machine, you can navigate to the relevant language folder and access the code files.
 
 ### Contributing
 
-If you'd like to contribute to this repository, feel free to fork the repository and create a pull request with your changes. I welcome contributions from all developers, regardless of experience level.
+If you'd like to contribute to this repository, feel free to fork the repository and create a pull request with your changes.
 
 ### Contact
 
