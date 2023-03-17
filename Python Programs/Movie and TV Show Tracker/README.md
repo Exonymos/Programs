@@ -20,7 +20,7 @@
 
 ### Getting Started
 
-##### Prerequisites
+### Prerequisites
 
 None required if you just want to use the exe file.
 
