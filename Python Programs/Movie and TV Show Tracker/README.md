@@ -22,9 +22,7 @@
 
 ##### Prerequisites
 
-```shell
-Python 3.x
-```
+None required if you just want to use the exe file.
 
 
 ### How to use
