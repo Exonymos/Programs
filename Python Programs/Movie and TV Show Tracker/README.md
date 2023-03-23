@@ -29,7 +29,7 @@ None required if you just want to use the exe file.
 
 When you run the program, you will see the main menu with options to add, update, rename, show or delete an entry.
 
-Executable file location: `\Movie and TV Show Tracker\dist\Movie_and_TV_Show_Tracker.exe`
+Executable file location: `\Movie and TV Show Tracker\dist\Episode Tracker.exe`
 
 #### Add an entry
 
