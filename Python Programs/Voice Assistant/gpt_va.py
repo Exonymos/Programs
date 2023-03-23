@@ -5,8 +5,9 @@ import sounddevice as sd
 import wavio
 import asyncio
 
-# Initialize OpenAI API
-openai.api_key = "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"
+# Get API key from user input
+api_key = input("Enter your OpenAI API key: ")
+openai.api_key = api_key
 
 # Initialize the text-to-speech engine 
 engine = pyttsx3.init()
@@ -45,7 +46,7 @@ async def record_audio(duration, sample_rate, filename):
 async def main():
     while True:
         # Prompt the user to start speaking
-        print("Hello, please say your question.")
+        print("\nHello, please say your question.")
         speak_text("Hello, please say your question.")
         
         # Wait for user to say something
@@ -60,13 +61,12 @@ async def main():
         if text:
             print(f"You said: {text}")
             if text.lower() in ['quit', 'exit']:
-                print("Thank you for using the program. Goodbye!")
+                print("\nThank you for using the program. Goodbye!")
                 speak_text("Thank you for using the program. Goodbye!")
                 return
 
             response = generate_response(text)
-            print(f"Chat GPT-3 says: {response}")
-
+            print(f"\nChat GPT-3 says: {response}")
             speak_text(response)
 
 if __name__ == "__main__":
