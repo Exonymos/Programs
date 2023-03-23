@@ -29,5 +29,5 @@ This program might not always work perfectly. If it doesn't understand you, or i
 
 ------------
 
-## [Download]()
+## [View Repo](https://github.com/Exonymos/ShowTrackr)
 
