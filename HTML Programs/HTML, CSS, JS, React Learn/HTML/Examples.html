@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="text/html"; charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example 1</title>
+
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Kameron:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Mukta+Vaani&display=swap');
+        :root {
+            background-color: #212121;
+            color: #ffffff;
+            font-size: 1.1em;
+            font-family: mukta vaani, sans-serif;
+            margin-left: 30%;
+            margin-right: 30%;
+            margin-bottom: 10%;
+        }
+        :root .example {
+            color: #00ffff;
+            font-size: 2.5em;
+            font-family: Kameron, serif;
+        }
+        :root a:link {
+            color: #00ffff;
+        }
+        :root a:visited{
+            color: #009595;
+        }
+        code {
+			display: block;
+			background-color: #303030;
+			padding: 10px;
+			border-radius: 10px;
+			font-family: 'Courier New', Courier, monospace;
+			font-size: 14px;
+			line-height: 1.5;
+			overflow-x: auto;
+		}
+        footer {
+            text-align: center;
+            font-size: 1.8em;
+            color: #ffffff;
+        }
+    </style>
+
+    <script>
+        function myFunction() {
+            var x = document.getElementById("fname");
+            x.value = x.value.toUpperCase();
+        }
+    </script>
+
+</head>
+<body>
+    <p class="example">Example 1</p>
+    <h3>This javascript function will capitalize your name:</h3>
+    <p>Enter your name: <input type="text" id="name" onchange="myFunction()"</p>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 2</p>
+    <h1>Headers 1</h1>
+    <h2>Headers 2</h2>
+    <h3>Headers 3</h3>
+    <h4>Headers 4</h4>
+    <h5>Headers 5</h5>
+    <h6>Headers 6</h6>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 3</p>
+    <p><b>Bold Text</b></p>
+    <p><em>Italic Text</em></p>
+    <p><u>Underline Text</u></p>
+    <p><s>Strike Through Text</s></p>
+    <p><mark>Marked Text</mark></p>
+    <p><small>Small Text</small></p>
+    <p><sub>Subscript Text</sub></p>
+    <p><sup>Superscript Text</sup></p>
+    <p><ins>Inserted Text</ins></p>
+    <p><del>Deleted Text</del></p>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 4</p>
+    <h2>My Favorite Sports</h2>
+    <ul>
+        <li>Football</li>
+        <li>Baseball</li>
+        <li>Basketball</li>
+        <li>Hockey</li>
+        <li>Soccer</li>
+    </ul>
+    <h2>My Favorite Foods</h2>
+    <ol>
+        <li>Pizza</li>
+        <li>Steak</li>
+        <li>Chicken</li>
+        <li>Salad</li>
+        <li>Ice Cream</li>
+    </ol>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 5</p>
+    <p>
+        An <b>absolute file reference</b> specifies the full URL or file path to the file being linked to, starting from the root of the website. For example:<br>
+        <code>&lt;img src="https://example.com/images/image.jpg" alt="Example Image"&gt;</code><br><br>
+        A <b>relative file reference</b>, on the other hand, specifies the file path relative to the current file location. For example:<br>
+        <code>&lt;img src="../images/image.jpg" alt="Example Image"&gt;</code>
+    </p>
+    <h3>Link Text</h3>
+    <p>
+        <a href="https://www.w3schools.com/html/" target="_blank">HTML tutorial</a><br>
+        <a href="https://www.w3schools.com/css/"target="_blank">CSS tutorial</a><br>
+        <a href="https://www.w3schools.com/js/"target="_blank">JavaScript tutorial</a>
+    </p>
+    <h3>Vacation Pictures:</h3>
+    <p>
+        <a href="https://www.w3schools.com/html/pic_mountain.jpg"><img src="https://www.w3schools.com/html/pic_mountain.jpg" alt="Valley" width="300" height="200"></a>
+        <a href="https://www.w3schools.com/html/pic_trulli.jpg"><img src="https://www.w3schools.com/html/pic_trulli.jpg" alt="Trulli" width="300" height="200"></a>
+        <a href="https://www.w3schools.com/css/img_mountains.jpg"><img src="https://www.w3schools.com/css/img_mountains.jpg" alt="Mountains" width="300" height="200"></a>
+    </p>
+    <br>
+    <h3>Video:</h3>
+    <video controls>
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        <source src="https://www.w3schools.com/html/mov_bbb.ogg" type="video/ogg">
+        Your browser does not support HTML video.
+    </video>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 6</p>
+    <h3>Tables</h3>
+    <table style="width:100%" border="1" bordercolor="aqua" cellspacing="2" cellpadding="1">
+        <tr>
+            <td>Sports</td>
+            <td>Responses</td>
+        </tr>
+        <tr>
+            <td>Football</td>
+            <td>25</td>
+        </tr>
+        <tr>
+            <td>Baseball</td>
+            <td>28</td>
+        </tr>
+        <tr>
+            <td>Basketball</td>
+            <td>27</td>
+        </tr>
+        <tr>
+            <td>Hockey</td>
+            <td>15</td>
+        </tr>
+        <tr>
+            <td>Basketball</td>
+            <td>24</td>
+        </tr>
+        <tr>
+            <td>Other</td>
+            <td>11</td>
+        </tr>
+    </table>
+    <br>
+    <table style="width:100%" border="1" bordercolor="aqua" cellspacing="2" cellpadding="1">
+        <tr>
+            <td colspan="2" align="center">My Expenses</td>
+        </tr>
+        <tr>
+            <td>Food</td>
+            <td>$100</td>
+        </tr>
+        <tr>
+            <td>Gas</td>
+            <td>$50</td>
+        </tr>
+        <tr>
+            <td>Entertainment</td>
+            <td>$75</td>
+        </tr>
+        <tr>
+            <td>Other</td>
+            <td>$25</td>
+        </tr>
+    </table>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 7</p>
+    <h2>Get Requests:</h2>
+        <ul>
+            <li>Can be cached</li>
+            <li>Remain in browser history</li>
+            <li>Should only be used to retrieve data</li>
+            <li>Have Lenght Restrictions</li>
+            <li>Should not be used for sensitive data</li>
+            <li>Can be bookmarked</li>
+        </ul>
+    <h2>Post Method:</h2>
+        <ul>
+            <li>Requests are never cached</li>
+            <li>Do not remain in browser history</li>
+            <li>Have no restrictions on data length</li>
+            <li>Cannot be bookmarked</li>
+        </ul>
+    <h3>Forms</h3>
+    <form name="employment" action="send.php" method="post">
+        <table>
+            <tr>
+                <td>Employment Application</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>First Name</td>
+                <td>
+                    <input type="text" name="fname" size="20" maxlength="20">
+                </td>
+            </tr>
+            <tr>
+                <td>Last Name</td>
+                <td>
+                    <input type="text" name="lname" size="20" maxlength="20">
+                </td>
+            </tr>
+            <tr>
+                <td>Position</td>
+                <td>
+                    <select name="position">
+                        <option value="MA">Manager</option>
+                        <option value="SU">Supervisor</option>
+                        <option value="EM">Employee</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Experience Level</td>
+                <td>
+                    <select name="experience">
+                        <option value="EL">Entry Level</option>
+                        <option value="IN">Intermediate</option>
+                        <option value="EX">Expert</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Job Type</td>
+                <td>
+                    <input type="checkbox" name="jobtype" value="FT">Full Time
+                    <input type="checkbox" name="jobtype" value="PT">Part Time
+                    <input type="checkbox" name="jobtype" value="CT">Contact
+            </tr>
+            <tr>
+                <td>Employment Status</td>
+                <td>
+                    <input type="radio" name="estatus" value="employed">Employed
+                    <input type="radio" name="estatus" value="unemployed">Unemployed
+                    <input type="radio" name="estatus" value="student">Student
+                </td>
+            </tr>
+            <tr>
+                <td>Comments</td>
+                <td>
+                    <textarea name="comments" rows="5" cols="40"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" name="submit" value="Submit">
+                    <input type="reset" name="reset" value="Reset">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <hr size="2" width="100%" color="aqua">
+    <p class="example">Example 8</p>
+    <h2>iFrames</h2>
+    <iframe src="https://www.bing.com" style="border:none" title="Bing Search Engine" width="100%" height="500">
+        <p>Your browser does not support iframes.</p>
+    </iframe>
+    <footer>
+        <p>End of Page</p>
+    </footer>
+</body>
+</html>
