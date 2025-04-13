@@ -10,6 +10,8 @@ In this repository, you will find code files which I have written in different p
 
 - [C](https://github.com/Exonymos/Programs/tree/main/C%20Programs "C")
 - [C++](https://github.com/Exonymos/Programs/tree/main/C%2B%2B%20Programs "C++")
+- [HTML](https://github.com/Exonymos/Programs/tree/main/HTML%20Programs "HTML")
+- [Java](https://github.com/Exonymos/Programs/tree/main/JAVA%20Programs "Java")
 - [Python](https://github.com/Exonymos/Programs/tree/main/Python%20Programs "Python")
 
 ### How to Use the Repository

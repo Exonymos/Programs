@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Project 2</title>
+    <style>
+        body {
+            margin-top: 20px;
+            background-color: #222;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.3em;
+            text-align: center;
+            color: white;
+        }
+
+        .thumbnails img {
+            height: 80px;
+            margin: 0 10px 10px 0;
+            border: 4px solid #555;
+        }
+
+        .thumbnails img:hover {
+            border: 4px solid #00ccff;
+        }
+
+        .preview img {
+            width: 800px;
+            padding: 1px;
+            border: 4px solid #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <h1>JS Project 2</h1>
+        <p>This project is a website that displays a preview of an image when the user hovers over a thumbnail.</p>
+        <div class="thumbnails">
+            <img onmouseover="preview.src=img1.src" name="img1"
+                src="https://plus.unsplash.com/premium_photo-1668799886418-2335be7716e9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1158&q=80">
+            <img onmouseover="preview.src=img2.src" name="img2"
+                src="https://images.unsplash.com/photo-1682712581615-18fc7a7b9092?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80">
+            <img onmouseover="preview.src=img3.src" name="img3"
+                src="https://images.unsplash.com/photo-1577717707588-58e49821e851?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80">
+        </div>
+        <br>
+        <div class="preview">
+            <img name="preview"
+                src="https://plus.unsplash.com/premium_photo-1668799886418-2335be7716e9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1158&q=80">
+        </div>
+    </div>
+    <script>
+        const previewImage = document.querySelector('.preview img');
+        const thumbnailImages = document.querySelectorAll('.thumbnails img');
+
+        // Initially show the first thumbnail image as the preview image
+        previewImage.src = thumbnailImages[0].src;
+
+        // Add event listeners to all thumbnail images
+        thumbnailImages.forEach((thumbnailImage) => {
+            thumbnailImage.addEventListener('mouseover', () => {
+                // Change the preview image src to the hovered thumbnail's src
+                previewImage.src = thumbnailImage.src;
+            });
+        });
+
+    </script>
+</body>
+
+</html>

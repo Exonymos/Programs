@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback | Tasty Bites</title>
+    <link rel="stylesheet" href="CSS/feed.css">
+</head>
+<body>
+    <div class="header2">
+		<h1>Feedback Form</h1>
+	</div>
+    <div class="nav">
+		<ul>
+			<li><a href="index.html">Home</a></li>
+			<li><a href="menu.html">Menu</a></li>
+			<li><a href="contact.html">Contact</a></li>
+			<li><a href="about.html">About</a></li>
+			<li><a href="feedback.html">Feedback</a></li>
+		</ul>
+    </div>
+    <style>
+		body{
+			background-image: url("img/background.jpg");
+			background-size:cover ;
+			background-position: 0px 0px;
+		}
+	</style>
+    
+    <div class="feed1">
+            <form>
+            <div class="basic detail">
+            <label>Name</label>
+            <input type="text" name="Name"maxlength="30"size="18" placeholder="Joy Barot"/><br>
+            <label>Email</label>
+            <input type="email" id="email"size="20" placeholder="tastybites@gmail.com"/><br>
+            <label>Date of your visit</label>
+            <input type="date" value="today" min="2022-01-01" max=2023-12-31><br>
+            <label>Rate our services</label>
+            <select>
+            <option value="select" style="text-align:centre"></option>
+                <option value="3">Excellent</option>
+                <option value="2">Average</option>
+                <option value="1">Bad</option>
+            </select><br>
+            <label>Rate our food quality</label>
+            <select>
+                <option value="select" style="text-align:centre"></option>
+                <option value="3">Excellent</option>
+                <option value="2">Average</option>
+                <option value="1">Bad</option>
+            </select><br>
+            <label>Rate our cleaniness</label>
+            <select>
+                <option value="select" style="text-align:centre"></option>
+                <option value="3">Excellent</option>
+                <option value="2">Average</option>
+                <option value="1">Bad</option>
+            </select><br>
+            <label>Remarks</label><br>
+            <textarea name="remarks" rows="5" cols="40" placeholder="Type your text here..."></textarea><br><br>
+            <input class="submit" type="submit" value="Submit" style="height: 25px;width: 60px;"><br>
+            </div>
+            </form>
+    </div>
+    <div class="footer5">
+		
+	</div>
+</body>
+</html>

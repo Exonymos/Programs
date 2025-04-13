@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Project 1</title>
+    <style>
+        body {
+            margin: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.3em;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body onload="changeColors()">
+
+    <h1>JS Project 1</h1><br>
+    <p>This project is a website that changes its background color every time the page is loaded. <br>The text color is also changed automatically to make it easy to read.</p>
+
+    <script>
+        function changeColors() {
+            // get a random color for the background
+            const randomBackgroundColor = getRandomColor();
+            document.body.style.backgroundColor = randomBackgroundColor;
+
+            // get a suitable text color based on the background color
+            const textColor = getTextColor(randomBackgroundColor);
+            document.body.style.color = textColor;
+        }
+
+        function getRandomColor() {
+            // generate a random hexadecimal color code
+            const randomHex = Math.floor(Math.random() * 16777215).toString(16);
+            return "#" + randomHex;
+        }
+
+        function getTextColor(bgColor) {
+            // convert the background color to its RGB components
+            const red = parseInt(bgColor.substr(1, 2), 16);
+            const green = parseInt(bgColor.substr(3, 2), 16);
+            const blue = parseInt(bgColor.substr(5, 2), 16);
+
+            // calculate the color's perceived brightness using the YIQ formula
+            const perceivedBrightness = (red * 299 + green * 587 + blue * 114) / 1000;
+
+            // return either black or white as the text color based on the brightness
+            return perceivedBrightness > 128 ? "#000000" : "#FFFFFF";
+        }
+    </script>
+
+</body>
+
+</html>
