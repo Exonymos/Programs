@@ -114,6 +114,11 @@ func getCommands() map[string]cliCommand {
 			description: "View details of a caught Pokemon",
 			callback:    commandInspect,
 		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "Lists all Pokemon you have caught",
+			callback:    commandPokedex,
+		},
 	}
 }
 
@@ -365,7 +370,7 @@ func commandCatch(cfg *Config, args ...string) error {
 	if roll < catchThreshold {
 		fmt.Printf("%s was caught!\n", pokemonName)
 		cfg.UserPokedex[pokemonName] = pokemonData // Store in Pokedex
-		fmt.Printf("Added %s to your Pokedex.\n", pokemonName)
+		fmt.Printf("You may now inspect %s using the 'inspect' command.\n", pokemonName)
 	} else {
 		fmt.Printf("%s escaped!\n", pokemonName)
 	}
@@ -395,6 +400,27 @@ func commandInspect(cfg *Config, args ...string) error {
 	fmt.Println("Types:")
 	for _, typ := range pokemonData.Types {
 		fmt.Printf("  - %s\n", typ.Type.Name)
+	}
+	return nil
+}
+
+// callback for the "pokedex" command
+func commandPokedex(cfg *Config, _ ...string) error {
+	if len(cfg.UserPokedex) == 0 {
+		fmt.Println("Your Pokedex is empty. Go catch some Pokemon!")
+		return nil
+	}
+
+	fmt.Println("Your Pokedex:")
+	// To print in a consistent (sorted) order
+	var caughtPokemonNames []string
+	for name := range cfg.UserPokedex {
+		caughtPokemonNames = append(caughtPokemonNames, name)
+	}
+	sort.Strings(caughtPokemonNames)
+
+	for _, name := range caughtPokemonNames {
+		fmt.Printf(" - %s\n", name)
 	}
 	return nil
 }
