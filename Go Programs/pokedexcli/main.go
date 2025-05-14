@@ -3,78 +3,30 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
-	"encoding/json"
 	"fmt"
-	"io"
 	"math/rand"
-	"net/http"
 	"os"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/Exonymos/pokedexcli/internal/pokeapi"
 	"github.com/Exonymos/pokedexcli/internal/pokecache"
 )
 
 // Config struct to hold app state
 type Config struct {
-	PokeapiClient       http.Client
+	PokeAPIClient       pokeapi.Client
 	NextLocationAreaURL *string
 	PrevLocationAreaURL *string
-	UserPokedex         map[string]PokemonApiResponse // For caught Pokemon
-	Cache               *pokecache.Cache
+	UserPokedex         map[string]pokeapi.PokemonApiResponse // For caught Pokemon
 }
 
 // Struct to represent the application state
 type AppState struct {
-	UserPokedex         map[string]PokemonApiResponse
+	UserPokedex         map[string]pokeapi.PokemonApiResponse
 	NextLocationAreaURL *string
 	PrevLocationAreaURL *string
-}
-
-// Struct to represent the JSON response for location areas
-type LocationAreaResponse struct {
-	Count    int     `json:"count"`
-	Next     *string `json:"next"`
-	Previous *string `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
-
-// Struct to represent the JSON response for location area details
-type LocationAreaDetailResponse struct {
-	Name              string `json:"name"`
-	PokemonEncounters []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
-	} `json:"pokemon_encounters"`
-}
-
-// Struct to represent the JSON response for Pokemon details
-type PokemonApiResponse struct {
-	ID             int    `json:"id"`
-	Name           string `json:"name"`
-	BaseExperience int    `json:"base_experience"`
-	Height         int    `json:"height"`
-	Weight         int    `json:"weight"`
-	Stats          []struct {
-		BaseStat int `json:"base_stat"`
-		Stat     struct {
-			Name string `json:"name"`
-			URL  string `json:"url"` // URL of the stat
-		} `json:"stat"`
-	} `json:"stats"`
-	Types []struct {
-		Slot int `json:"slot"`
-		Type struct {
-			Name string `json:"name"`
-			URL  string `json:"url"` // URL of the type
-		} `json:"type"`
-	} `json:"types"`
 }
 
 // cliCommand struct definition
@@ -94,37 +46,37 @@ func saveAppState(cfg *Config) error {
 		PrevLocationAreaURL: cfg.PrevLocationAreaURL,
 	}
 
-	data, err := os.Create(saveFilePath)
+	file, err := os.Create(saveFilePath)
 	if err != nil {
-		return fmt.Errorf("could not create save file: %w", err)
+		return fmt.Errorf("could not create save file '%s': %w", saveFilePath, err)
 	}
-	defer data.Close()
+	defer file.Close()
 
-	encoder := gob.NewEncoder(data)
+	encoder := gob.NewEncoder(file)
 	err = encoder.Encode(state)
 	if err != nil {
-		return fmt.Errorf("could not encode app state to save file: %w", err)
+		return fmt.Errorf("could not encode app state to save file '%s': %w", saveFilePath, err)
 	}
-	fmt.Println("Progress saved!")
+
 	return nil
 }
 
 // Load the app state from a file
 func loadAppState() (*AppState, error) {
-	data, err := os.Open(saveFilePath)
+	file, err := os.Open(saveFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("could not open save file: %w", err)
+		return nil, fmt.Errorf("could not open save file '%s': %w", saveFilePath, err)
 	}
-	defer data.Close()
+	defer file.Close()
 
 	var state AppState
-	decoder := gob.NewDecoder(data)
+	decoder := gob.NewDecoder(file)
 	err = decoder.Decode(&state)
 	if err != nil {
-		return nil, fmt.Errorf("could not decode app state from save file: %w", err)
+		return nil, fmt.Errorf("could not decode app state from save file '%s': %w", saveFilePath, err)
 	}
 	fmt.Println("Progress loaded!")
 	return &state, nil
@@ -183,7 +135,7 @@ func commandExit(cfg *Config, _ ...string) error {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving progress: %v\n", err)
 	} else {
-		fmt.Println("Progress saved successfully.")
+		fmt.Println("Progress saved successfully to", saveFilePath)
 	}
 
 	fmt.Println("Closing the Pokedex... Goodbye!")
@@ -216,46 +168,14 @@ func commandHelp(_ *Config, _ ...string) error {
 
 // callback for the "map" command
 func commandMap(cfg *Config, _ ...string) error {
-	urlToFetch := "https://pokeapi.co/api/v2/location-area/"
+	fmt.Printf("Fetching next location areas...\n")
 	if cfg.NextLocationAreaURL != nil && *cfg.NextLocationAreaURL != "" {
-		urlToFetch = *cfg.NextLocationAreaURL
+		fmt.Printf("(from: %s)\n", *cfg.NextLocationAreaURL)
 	}
 
-	fmt.Printf("Fetching location areas from: %s\n", urlToFetch) // Debugging line
-
-	var body []byte
-	var err error
-
-	// Try to get from cache first
-	cachedData, found := cfg.Cache.Get(urlToFetch)
-	if found {
-		fmt.Println("(Cache hit for location areas)")
-		body = cachedData
-	} else {
-		fmt.Println("(Cache miss for location areas, fetching...)")
-		resp, errHttp := cfg.PokeapiClient.Get(urlToFetch)
-		if errHttp != nil {
-			return fmt.Errorf("failed to fetch location areas: %w", errHttp)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode > 299 {
-			bodyBytes, _ := io.ReadAll(resp.Body)
-			return fmt.Errorf("bad status code: %d from %s. Response: %s", resp.StatusCode, urlToFetch, string(bodyBytes))
-		}
-
-		body, err = io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body: %w", err)
-		}
-		// Add to cache
-		cfg.Cache.Add(urlToFetch, body)
-	}
-
-	var locationAreasResp LocationAreaResponse
-	err = json.Unmarshal(body, &locationAreasResp)
+	locationAreasResp, err := cfg.PokeAPIClient.ListLocationAreas(cfg.NextLocationAreaURL)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal JSON response: %w (Body: %s)", err, string(body))
+		return fmt.Errorf("could not get location areas: %w", err)
 	}
 
 	fmt.Println("Location Areas:")
@@ -276,40 +196,11 @@ func commandMapb(cfg *Config, _ ...string) error {
 		return nil
 	}
 
-	urlToFetch := *cfg.PrevLocationAreaURL
-	fmt.Printf("Fetching previous location areas from: %s\n", urlToFetch) // Debugging line
+	fmt.Printf("Fetching previous location areas from: %s\n", *cfg.PrevLocationAreaURL) // Debugging line
 
-	var body []byte
-	var err error
-
-	cachedData, found := cfg.Cache.Get(urlToFetch)
-	if found {
-		fmt.Println("(Cache hit for previous location areas)")
-		body = cachedData
-	} else {
-		fmt.Println("(Cache miss for previous location areas, fetching...)")
-		resp, errHttp := cfg.PokeapiClient.Get(urlToFetch)
-		if errHttp != nil {
-			return fmt.Errorf("failed to fetch previous location areas: %w", errHttp)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode > 299 {
-			bodyBytes, _ := io.ReadAll(resp.Body)
-			return fmt.Errorf("bad status code: %d from %s. Response: %s", resp.StatusCode, urlToFetch, string(bodyBytes))
-		}
-
-		body, err = io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body: %w", err)
-		}
-		cfg.Cache.Add(urlToFetch, body)
-	}
-
-	var locationAreasResp LocationAreaResponse
-	err = json.Unmarshal(body, &locationAreasResp)
+	locationAreasResp, err := cfg.PokeAPIClient.ListLocationAreas(cfg.PrevLocationAreaURL)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal JSON response: %w (Body: %s)", err, string(body))
+		return fmt.Errorf("could not get previous location areas: %w", err)
 	}
 
 	fmt.Println("Location Areas (Previous):")
@@ -331,39 +222,9 @@ func commandExplore(cfg *Config, args ...string) error {
 	locationAreaName := args[0]
 	fmt.Printf("Exploring %s...\n", locationAreaName)
 
-	urlToFetch := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s/", locationAreaName)
-
-	var body []byte
-	var err error
-
-	cachedData, found := cfg.Cache.Get(urlToFetch)
-	if found {
-		fmt.Printf("(Cache hit for %s details)\n", locationAreaName)
-		body = cachedData
-	} else {
-		fmt.Printf("(Cache miss for %s details, fetching...)\n", locationAreaName)
-		resp, errHttp := cfg.PokeapiClient.Get(urlToFetch)
-		if errHttp != nil {
-			return fmt.Errorf("failed to fetch details for %s: %w", locationAreaName, errHttp)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode > 299 {
-			bodyBytes, _ := io.ReadAll(resp.Body)
-			return fmt.Errorf("bad status code: %d from %s. Response: %s", resp.StatusCode, urlToFetch, string(bodyBytes))
-		}
-
-		body, err = io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body for %s: %w", locationAreaName, err)
-		}
-		cfg.Cache.Add(urlToFetch, body)
-	}
-
-	var areaDetailResp LocationAreaDetailResponse
-	err = json.Unmarshal(body, &areaDetailResp)
+	areaDetailResp, err := cfg.PokeAPIClient.GetLocationAreaDetail(locationAreaName)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal JSON for %s: %w (Body: %s)", locationAreaName, err, string(body))
+		return fmt.Errorf("could not get details for %s: %w", locationAreaName, err)
 	}
 
 	if len(areaDetailResp.PokemonEncounters) == 0 {
@@ -386,43 +247,13 @@ func commandCatch(cfg *Config, args ...string) error {
 	pokemonName := args[0]
 	fmt.Printf("Throwing a Pokeball at %s...\n", pokemonName)
 
-	urlToFetch := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s/", pokemonName)
-
-	var body []byte
-	var err error
-
-	cachedData, found := cfg.Cache.Get(urlToFetch)
-	if found {
-		fmt.Printf("(Cache hit for %s data)\n", pokemonName)
-		body = cachedData
-	} else {
-		fmt.Printf("(Cache miss for %s data, fetching...)\n", pokemonName)
-		resp, errHttp := cfg.PokeapiClient.Get(urlToFetch)
-		if errHttp != nil {
-			return fmt.Errorf("failed to fetch details for %s: %w", pokemonName, errHttp)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode == http.StatusNotFound {
-			fmt.Printf("Pokemon '%s' not found.\n", pokemonName)
+	pokemonData, err := cfg.PokeAPIClient.GetPokemonInfo(pokemonName)
+	if err != nil {
+		if strings.Contains(err.Error(), "response not found (404)") {
+			fmt.Printf("Pokemon '%s' not found by API.\n", pokemonName)
 			return nil
 		}
-		if resp.StatusCode > 299 {
-			bodyBytes, _ := io.ReadAll(resp.Body)
-			return fmt.Errorf("bad status code: %d from %s. Response: %s", resp.StatusCode, urlToFetch, string(bodyBytes))
-		}
-
-		body, err = io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body for %s: %w", pokemonName, err)
-		}
-		cfg.Cache.Add(urlToFetch, body)
-	}
-
-	var pokemonData PokemonApiResponse
-	err = json.Unmarshal(body, &pokemonData)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal JSON for %s: %w (Body: %s)", pokemonName, err, string(body))
+		return fmt.Errorf("could not get info for %s: %w", pokemonName, err)
 	}
 
 	// Simulate a catch attempt
@@ -546,12 +377,15 @@ func main() {
 	const cacheReapInterval = 5 * time.Minute // How often to reap, and max age of entries
 	pokeCache := pokecache.NewCache(cacheReapInterval)
 
+	// Initialize PokeAPI Client
+	const httpClientTimeout = 10 * time.Second
+	apiClient := pokeapi.NewClient(pokeCache, httpClientTimeout)
+
 	// Initialize the config
-	initialNextURLStr := "https://pokeapi.co/api/v2/location-area/"
+	initialNextURLStr := pokeapi.BaseURL + "/location-area/"
 	cfg := Config{
-		PokeapiClient:       http.Client{Timeout: 10 * time.Second},
-		UserPokedex:         make(map[string]PokemonApiResponse),
-		Cache:               pokeCache,
+		PokeAPIClient:       apiClient,
+		UserPokedex:         make(map[string]pokeapi.PokemonApiResponse),
 		NextLocationAreaURL: &initialNextURLStr,
 		PrevLocationAreaURL: nil,
 	}
