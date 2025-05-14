@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,6 +23,13 @@ type Config struct {
 	PrevLocationAreaURL *string
 	UserPokedex         map[string]PokemonApiResponse // For caught Pokemon
 	Cache               *pokecache.Cache
+}
+
+// Struct to represent the application state
+type AppState struct {
+	UserPokedex         map[string]PokemonApiResponse
+	NextLocationAreaURL *string
+	PrevLocationAreaURL *string
 }
 
 // Struct to represent the JSON response for location areas
@@ -76,6 +84,52 @@ type cliCommand struct {
 	callback    func(*Config, ...string) error
 }
 
+const saveFilePath = "pokedex.gob"
+
+// Save the app state to a file
+func saveAppState(cfg *Config) error {
+	state := AppState{
+		UserPokedex:         cfg.UserPokedex,
+		NextLocationAreaURL: cfg.NextLocationAreaURL,
+		PrevLocationAreaURL: cfg.PrevLocationAreaURL,
+	}
+
+	data, err := os.Create(saveFilePath)
+	if err != nil {
+		return fmt.Errorf("could not create save file: %w", err)
+	}
+	defer data.Close()
+
+	encoder := gob.NewEncoder(data)
+	err = encoder.Encode(state)
+	if err != nil {
+		return fmt.Errorf("could not encode app state to save file: %w", err)
+	}
+	fmt.Println("Progress saved!")
+	return nil
+}
+
+// Load the app state from a file
+func loadAppState() (*AppState, error) {
+	data, err := os.Open(saveFilePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("could not open save file: %w", err)
+	}
+	defer data.Close()
+
+	var state AppState
+	decoder := gob.NewDecoder(data)
+	err = decoder.Decode(&state)
+	if err != nil {
+		return nil, fmt.Errorf("could not decode app state from save file: %w", err)
+	}
+	fmt.Println("Progress loaded!")
+	return &state, nil
+}
+
 // getCommands returns a map of available CLI commands
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
@@ -123,7 +177,15 @@ func getCommands() map[string]cliCommand {
 }
 
 // callback for the "exit" command
-func commandExit(_ *Config, _ ...string) error {
+func commandExit(cfg *Config, _ ...string) error {
+	fmt.Println("Saving progress...")
+	err := saveAppState(cfg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving progress: %v\n", err)
+	} else {
+		fmt.Println("Progress saved successfully.")
+	}
+
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
@@ -485,16 +547,36 @@ func main() {
 	pokeCache := pokecache.NewCache(cacheReapInterval)
 
 	// Initialize the config
-	initialNextURL := "https://pokeapi.co/api/v2/location-area/"
-
+	initialNextURLStr := "https://pokeapi.co/api/v2/location-area/"
 	cfg := Config{
-		PokeapiClient: http.Client{
-			Timeout: 10 * time.Second,
-		},
-		NextLocationAreaURL: &initialNextURL,
-		PrevLocationAreaURL: nil,
+		PokeapiClient:       http.Client{Timeout: 10 * time.Second},
 		UserPokedex:         make(map[string]PokemonApiResponse),
 		Cache:               pokeCache,
+		NextLocationAreaURL: &initialNextURLStr,
+		PrevLocationAreaURL: nil,
 	}
+
+	loadedState, loadErr := loadAppState()
+	if loadErr != nil {
+		if !os.IsNotExist(loadErr) {
+			fmt.Fprintf(os.Stderr, "Warning: could not load saved progress: %v\n", loadErr)
+		}
+		fmt.Println("Starting new Pokedex session (no valid save file found or error during load)...")
+	} else if loadedState != nil {
+		fmt.Println("Resuming from saved progress...")
+		if loadedState.UserPokedex != nil {
+			cfg.UserPokedex = loadedState.UserPokedex
+		}
+		if loadedState.NextLocationAreaURL != nil || loadedState.PrevLocationAreaURL != nil {
+			cfg.NextLocationAreaURL = loadedState.NextLocationAreaURL
+			cfg.PrevLocationAreaURL = loadedState.PrevLocationAreaURL
+		}
+		if cfg.NextLocationAreaURL == nil && cfg.PrevLocationAreaURL == nil {
+			cfg.NextLocationAreaURL = &initialNextURLStr
+		}
+	} else {
+		fmt.Println("Starting new Pokedex session (no save file found)...")
+	}
+
 	startRepl(&cfg)
 }
