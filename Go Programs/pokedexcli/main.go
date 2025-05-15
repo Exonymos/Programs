@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
@@ -16,7 +17,7 @@ import (
 
 // Config struct to hold app state
 type Config struct {
-	PokeAPIClient       pokeapi.Client
+	PokeAPIClient       pokeapi.APIClient
 	NextLocationAreaURL *string
 	PrevLocationAreaURL *string
 	UserPokedex         map[string]pokeapi.PokemonApiResponse // For caught Pokemon
@@ -249,7 +250,7 @@ func commandCatch(cfg *Config, args ...string) error {
 
 	pokemonData, err := cfg.PokeAPIClient.GetPokemonInfo(pokemonName)
 	if err != nil {
-		if strings.Contains(err.Error(), "response not found (404)") {
+		if errors.Is(err, pokeapi.ErrResourceNotFound) {
 			fmt.Printf("Pokemon '%s' not found by API.\n", pokemonName)
 			return nil
 		}
@@ -384,7 +385,7 @@ func main() {
 	// Initialize the config
 	initialNextURLStr := pokeapi.BaseURL + "/location-area/"
 	cfg := Config{
-		PokeAPIClient:       apiClient,
+		PokeAPIClient:       &apiClient,
 		UserPokedex:         make(map[string]pokeapi.PokemonApiResponse),
 		NextLocationAreaURL: &initialNextURLStr,
 		PrevLocationAreaURL: nil,

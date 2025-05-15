@@ -2,6 +2,7 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,9 @@ import (
 const (
 	BaseURL = "https://pokeapi.co/api/v2"
 )
+
+// ErrResourceNotFound is returned when a PokeAPI resource is not found (404).
+var ErrResourceNotFound = errors.New("pokeapi: resource not found")
 
 // Client is a client for interacting with the PokeAPI.
 type Client struct {
@@ -29,6 +33,15 @@ func NewClient(cache *pokecache.Cache, timeout time.Duration) Client {
 		cache: cache,
 	}
 }
+
+// APIClient defines the interface for the PokeAPI interactions.
+type APIClient interface {
+	ListLocationAreas(pageURL *string) (LocationAreaResponse, error)
+	GetLocationAreaDetail(areaName string) (LocationAreaDetailResponse, error)
+	GetPokemonInfo(pokemonName string) (PokemonApiResponse, error)
+}
+
+var _ APIClient = &Client{}
 
 // ListLocationAreas fetches a list of location areas.
 func (c *Client) ListLocationAreas(pageURL *string) (LocationAreaResponse, error) {
@@ -111,7 +124,7 @@ func (c *Client) makeRequest(url string) ([]byte, error) {
 
 	if resp.StatusCode == http.StatusNotFound {
 		// Return a specific error or indicator for 404
-		return nil, fmt.Errorf("resource not found (404) at %s", url)
+		return nil, fmt.Errorf("%w at %s", ErrResourceNotFound, url)
 	}
 	if resp.StatusCode > 299 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
