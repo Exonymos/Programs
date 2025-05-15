@@ -215,6 +215,8 @@ func commandMapb(cfg *Config, _ ...string) error {
 	return nil
 }
 
+const randomEncounterChance = 0.30
+
 // callback for the "explore" command
 func commandExplore(cfg *Config, args ...string) error {
 	if len(args) == 0 {
@@ -225,6 +227,10 @@ func commandExplore(cfg *Config, args ...string) error {
 
 	areaDetailResp, err := cfg.PokeAPIClient.GetLocationAreaDetail(locationAreaName)
 	if err != nil {
+		if errors.Is(err, pokeapi.ErrResourceNotFound) {
+			fmt.Printf("Location area '%s' not found.\n", locationAreaName)
+			return nil
+		}
 		return fmt.Errorf("could not get details for %s: %w", locationAreaName, err)
 	}
 
@@ -237,6 +243,15 @@ func commandExplore(cfg *Config, args ...string) error {
 	for _, encounter := range areaDetailResp.PokemonEncounters {
 		fmt.Printf(" - %s\n", encounter.Pokemon.Name)
 	}
+
+	if rand.Float64() < randomEncounterChance {
+		randomIndex := rand.Intn(len(areaDetailResp.PokemonEncounters))
+		encounteredPokemon := areaDetailResp.PokemonEncounters[randomIndex].Pokemon
+
+		fmt.Printf("❗ A wild %s has appeared! ❗\n", strings.Title(encounteredPokemon.Name))
+		fmt.Printf("Quick! Try to `catch %s` before it gets away!\n\n", encounteredPokemon.Name)
+	}
+
 	return nil
 }
 
