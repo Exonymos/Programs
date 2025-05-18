@@ -3,3 +3,5 @@
 *.log
 n-*.md
 *.gob
+__pycache__/
+.vscode/
